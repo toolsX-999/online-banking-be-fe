@@ -31,7 +31,7 @@
 
 
         <!-- <form id="updateForm" action="/admin/register-user" method="POST" novalidate> -->
-        <form id="updateForm" action="/admin/update-user" method="POST">
+        <form id="updateForm" action="https://elitetrustbank-be.onrender.com/admin/update-user" method="POST">
             <div class="mb-3">
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-user"></i></span>
@@ -133,7 +133,7 @@
             <option selected disabled value="">Choose account type...</option>
             `;
             try {
-                const res = await fetch(`/admin/user-missing-accounts/${userId}`);
+                const res = await fetch(`https://elitetrustbank-be.onrender.com/admin/user-missing-accounts/${userId}`);
                 const data = await res.json();
 
                 data.missingTypes.forEach(type => {
@@ -160,7 +160,7 @@
 
 
             try {
-                const res = await fetch(`/admin/update-user/${userId}?_method=PUT`, {
+                const res = await fetch(`https://elitetrustbank-be.onrender.com/admin/update-user/${userId}?_method=PUT`, {
                     method: "POST",
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)

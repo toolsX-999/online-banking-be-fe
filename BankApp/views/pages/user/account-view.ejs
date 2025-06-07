@@ -336,37 +336,56 @@
                                             <!-- Add more rows here as needed -->
                                             <% transactions && transactions.forEach(transaction=> { %>
                                                 <tr>
-                                                    <% userAccount=account.find(acc=> acc.accountNumber === transaction.fromAccount); %>
+                                                    <% userAccount=account.find(acc=> acc.accountNumber ===
+                                                        transaction.fromAccount); %>
                                                         <!-- <td><%= transaction.createdAt %></td> -->
                                                         <td>
                                                             <%= new Date(transaction.createdAt).toLocaleString('en-US',{
-                                                                year: 'numeric',
-                                                                month: 'short',
-                                                                day: 'numeric',
-                                                                hour: '2-digit',
-                                                                minute: '2-digit'
-                                                                }) %>
+                                                                year: 'numeric' , month: 'short' , day: 'numeric' ,
+                                                                hour: '2-digit' , minute: '2-digit' }) %>
                                                         </td>
-                                                        <td><%= transaction.remarks || 'No remarks' %></td>
-                                                        <td><% if (transaction.transactionType=='transfer' ) { %>
-                                                            <span class="badge bg-danger"><%= transaction.transactionType %></span>
-                                                                <% } else if (transaction.transactionType=='deposit' ) {%>
+                                                        <td>
+                                                            <%= transaction.remarks || 'No remarks' %>
+                                                        </td>
+                                                        <td>
+                                                            <% if (transaction.transactionType=='transfer' ) { %>
+                                                                <span class="badge bg-danger">
+                                                                    <%= transaction.transactionType %>
+                                                                </span>
+                                                                <% } else if (transaction.transactionType=='deposit' )
+                                                                    {%>
                                                                     <span class="badge bg-success">
                                                                         <%= transaction.transactionType %>
-                                                                    </span><% } else { %>
+                                                                    </span>
+                                                                    <% } else { %>
                                                                         <span class="badge bg-secondary">
                                                                             <%= transaction.transactionType %>
                                                                         </span>
-                                                                    <% } %>
+                                                                        <% } %>
                                                         </td>
-                                                        <td class="text-end"><%= userAccount.accountType %></td>
-                                                        <td class="text-end text-danger">- $<%= transaction.amount.toFixed(2) %></td>
-                                                        <td class="text-end"><%= userAccount ? '$' + userAccount.balance.toFixed(2) : 'N/A' %>
+                                                        <td class="text-end">
+                                                            <%= userAccount.accountType %>
                                                         </td>
-                                                        <td><% if (transaction.status=='pending' ) { %><span class="badge bg-warning"><%= transaction.status %></span>
-                                                                <% } else if (transaction.status=='completed' ) { %><span class="badge bg-primary"><%= transaction.status %></span>
-                                                                    <% } else { %><span class="badge bg-secondary"><%= transaction.status %></span>
-                                                                    <% } %>
+                                                        <td class="text-end text-danger">- $<%=
+                                                                transaction.amount.toFixed(2) %>
+                                                        </td>
+                                                        <td class="text-end">
+                                                            <%= userAccount ? '$' + userAccount.balance.toFixed(2)
+                                                                : 'N/A' %>
+                                                        </td>
+                                                        <td>
+                                                            <% if (transaction.status=='pending' ) { %><span
+                                                                    class="badge bg-warning">
+                                                                    <%= transaction.status %>
+                                                                </span>
+                                                                <% } else if (transaction.status=='completed' ) { %>
+                                                                    <span class="badge bg-primary">
+                                                                        <%= transaction.status %>
+                                                                    </span>
+                                                                    <% } else { %><span class="badge bg-secondary">
+                                                                            <%= transaction.status %>
+                                                                        </span>
+                                                                        <% } %>
                                                         </td>
                                                 </tr>
                                                 <% }) %>
@@ -451,7 +470,7 @@
                                                         account.accountType.slice(1) %> - <%= account.accountNumber %>
                                                 </option>
                                                 <script>
-                                                    const accounts = <%- JSON.stringify(user.accounts) %>
+                                                    const accounts = <% - JSON.stringify(user.accounts) %>
                                                 </script>
                                                 <% }) %>
                                         </select>
@@ -614,82 +633,82 @@
                             <label for="payee" class="form-label"><small>Select Payee</small></label>
                             <select class="form-select" id="payee">
                                 <option selected disabled value="">Choose...</option>
-                                    <optgroup label="Utilities">
-                                      <option>Electric Company</option>
-                                      <option>Water Company</option>
-                                      <option>Natural Gas Provider</option>
-                                      <option>Trash Collection Service</option>
-                                      <option>Internet Service Provider</option>
-                                      <option>Cable TV Provider</option>
-                                      <option>Mobile Phone Provider</option>
-                                      <option>Landline Phone Provider</option>
-                                    </optgroup>
-                                  
-                                    <optgroup label="Loans & Credit">
-                                      <option>Credit Card</option>
-                                      <option>Auto Loan</option>
-                                      <option>Mortgage Loan</option>
-                                      <option>Student Loan</option>
-                                      <option>College Loan Servicer</option>
-                                      <option>Energy Efficient Upgrade Loan</option>
-                                      <option>Car Lease Payment</option>
-                                      <option>Loan from Friends/Family</option>
-                                    </optgroup>
-                                  
-                                    <optgroup label="Insurance">
-                                      <option>Auto Insurance</option>
-                                      <option>Health Insurance</option>
-                                      <option>Life Insurance</option>
-                                      <option>Homeowners Insurance</option>
-                                      <option>Pet Insurance</option>
-                                    </optgroup>
-                                  
-                                    <optgroup label="Housing & Rent">
-                                      <option>Rent Payment</option>
-                                      <option>Property Tax</option>
-                                      <option>HOA Fees</option>
-                                      <option>Student Housing</option>
-                                      <option>Storage Unit Rental</option>
-                                    </optgroup>
-                                  
-                                    <optgroup label="Education">
-                                      <option>School Tuition</option>
-                                      <option>Private School Fees</option>
-                                      <option>Online Course Platforms</option>
-                                    </optgroup>
-                                  
-                                    <optgroup label="Healthcare">
-                                      <option>Medical Bills</option>
-                                      <option>Dental Services</option>
-                                      <option>Veterinary Bills</option>
-                                    </optgroup>
-                                  
-                                    <optgroup label="Subscriptions & Services">
-                                      <option>Streaming Services (Netflix, Hulu, etc.)</option>
-                                      <option>Gym Membership</option>
-                                      <option>Cloud Storage (iCloud, Google Drive)</option>
-                                      <option>Digital Newspaper Subscriptions</option>
-                                      <option>Home Security Service</option>
-                                      <option>Subscription Services</option>
-                                    </optgroup>
-                                  
-                                    <optgroup label="Government & Legal">
-                                      <option>IRS Payment</option>
-                                      <option>State Tax Payment</option>
-                                      <option>Parking Fees or Fines</option>
-                                      <option>Toll Road Payment</option>
-                                      <option>Alimony or Child Support</option>
-                                    </optgroup>
-                                  
-                                    <optgroup label="Other">
-                                      <option>Charity Donation</option>
-                                      <option>Online Shopping (Amazon Pay, PayPal Credit)</option>
-                                      <option>Small Business Vendor</option>
-                                      <option>Credit Union Payment</option>
-                                      <option>Appliance Rental or Financing</option>
-                                      <option>Child Care Provider</option>
-                                    </optgroup>
-                                  </select>
+                                <optgroup label="Utilities">
+                                    <option>Electric Company</option>
+                                    <option>Water Company</option>
+                                    <option>Natural Gas Provider</option>
+                                    <option>Trash Collection Service</option>
+                                    <option>Internet Service Provider</option>
+                                    <option>Cable TV Provider</option>
+                                    <option>Mobile Phone Provider</option>
+                                    <option>Landline Phone Provider</option>
+                                </optgroup>
+
+                                <optgroup label="Loans & Credit">
+                                    <option>Credit Card</option>
+                                    <option>Auto Loan</option>
+                                    <option>Mortgage Loan</option>
+                                    <option>Student Loan</option>
+                                    <option>College Loan Servicer</option>
+                                    <option>Energy Efficient Upgrade Loan</option>
+                                    <option>Car Lease Payment</option>
+                                    <option>Loan from Friends/Family</option>
+                                </optgroup>
+
+                                <optgroup label="Insurance">
+                                    <option>Auto Insurance</option>
+                                    <option>Health Insurance</option>
+                                    <option>Life Insurance</option>
+                                    <option>Homeowners Insurance</option>
+                                    <option>Pet Insurance</option>
+                                </optgroup>
+
+                                <optgroup label="Housing & Rent">
+                                    <option>Rent Payment</option>
+                                    <option>Property Tax</option>
+                                    <option>HOA Fees</option>
+                                    <option>Student Housing</option>
+                                    <option>Storage Unit Rental</option>
+                                </optgroup>
+
+                                <optgroup label="Education">
+                                    <option>School Tuition</option>
+                                    <option>Private School Fees</option>
+                                    <option>Online Course Platforms</option>
+                                </optgroup>
+
+                                <optgroup label="Healthcare">
+                                    <option>Medical Bills</option>
+                                    <option>Dental Services</option>
+                                    <option>Veterinary Bills</option>
+                                </optgroup>
+
+                                <optgroup label="Subscriptions & Services">
+                                    <option>Streaming Services (Netflix, Hulu, etc.)</option>
+                                    <option>Gym Membership</option>
+                                    <option>Cloud Storage (iCloud, Google Drive)</option>
+                                    <option>Digital Newspaper Subscriptions</option>
+                                    <option>Home Security Service</option>
+                                    <option>Subscription Services</option>
+                                </optgroup>
+
+                                <optgroup label="Government & Legal">
+                                    <option>IRS Payment</option>
+                                    <option>State Tax Payment</option>
+                                    <option>Parking Fees or Fines</option>
+                                    <option>Toll Road Payment</option>
+                                    <option>Alimony or Child Support</option>
+                                </optgroup>
+
+                                <optgroup label="Other">
+                                    <option>Charity Donation</option>
+                                    <option>Online Shopping (Amazon Pay, PayPal Credit)</option>
+                                    <option>Small Business Vendor</option>
+                                    <option>Credit Union Payment</option>
+                                    <option>Appliance Rental or Financing</option>
+                                    <option>Child Care Provider</option>
+                                </optgroup>
+                            </select>
                         </div>
                         <div class="mb-3">
                             <label for="fromAccount" class="form-label"><small>From Account</small></label>
@@ -797,37 +816,53 @@
                                 <!-- Add more rows here as needed -->
                                 <% transactions && transactions.forEach(transaction=> { %>
                                     <tr>
-                                        <% userAccount=account.find(acc=> acc.accountNumber === transaction.fromAccount); %>
+                                        <% userAccount=account.find(acc=> acc.accountNumber ===
+                                            transaction.fromAccount); %>
                                             <!-- <td><%= transaction.createdAt %></td> -->
                                             <td>
                                                 <%= new Date(transaction.createdAt).toLocaleString('en-US',{
-                                                    year: 'numeric',
-                                                    month: 'short',
-                                                    day: 'numeric',
-                                                    hour: '2-digit',
-                                                    minute: '2-digit'
-                                                    }) %>
+                                                    year: 'numeric' , month: 'short' , day: 'numeric' , hour: '2-digit'
+                                                    , minute: '2-digit' }) %>
                                             </td>
-                                            <td><%= transaction.remarks || 'No remarks' %></td>
-                                            <td><% if (transaction.transactionType=='transfer' ) { %>
-                                                <span class="badge bg-danger"><%= transaction.transactionType %></span>
+                                            <td>
+                                                <%= transaction.remarks || 'No remarks' %>
+                                            </td>
+                                            <td>
+                                                <% if (transaction.transactionType=='transfer' ) { %>
+                                                    <span class="badge bg-danger">
+                                                        <%= transaction.transactionType %>
+                                                    </span>
                                                     <% } else if (transaction.transactionType=='deposit' ) {%>
                                                         <span class="badge bg-success">
                                                             <%= transaction.transactionType %>
-                                                        </span><% } else { %>
+                                                        </span>
+                                                        <% } else { %>
                                                             <span class="badge bg-secondary">
                                                                 <%= transaction.transactionType %>
                                                             </span>
-                                                        <% } %>
+                                                            <% } %>
                                             </td>
-                                            <td class="text-end"><%= userAccount.accountType %></td>
-                                            <td class="text-end text-danger">- $<%= transaction.amount.toFixed(2) %></td>
-                                            <td class="text-end"><%= userAccount ? '$' + userAccount.balance.toFixed(2) : 'N/A' %>
+                                            <td class="text-end">
+                                                <%= userAccount.accountType %>
                                             </td>
-                                            <td><% if (transaction.status=='pending' ) { %><span class="badge bg-warning"><%= transaction.status %></span>
-                                                    <% } else if (transaction.status=='completed' ) { %><span class="badge bg-primary"><%= transaction.status %></span>
-                                                        <% } else { %><span class="badge bg-secondary"><%= transaction.status %></span>
-                                                        <% } %>
+                                            <td class="text-end text-danger">- $<%= transaction.amount.toFixed(2) %>
+                                            </td>
+                                            <td class="text-end">
+                                                <%= userAccount ? '$' + userAccount.balance.toFixed(2) : 'N/A' %>
+                                            </td>
+                                            <td>
+                                                <% if (transaction.status=='pending' ) { %><span
+                                                        class="badge bg-warning">
+                                                        <%= transaction.status %>
+                                                    </span>
+                                                    <% } else if (transaction.status=='completed' ) { %><span
+                                                            class="badge bg-primary">
+                                                            <%= transaction.status %>
+                                                        </span>
+                                                        <% } else { %><span class="badge bg-secondary">
+                                                                <%= transaction.status %>
+                                                            </span>
+                                                            <% } %>
                                             </td>
                                     </tr>
                                     <% }) %>
@@ -1000,7 +1035,7 @@
     </script>
 
     <!-- Payment History Table pagination -->
-    
+
     <!-- Transfer OTP simulation -->
     <script>
         let currentProgress = 0;
@@ -1043,7 +1078,7 @@
 
             if (parseFloat(currentBalance) > parseFloat(transactionAmount)) {
                 document.getElementById("transferAlert").classList.add("d-none");
-                const res = await fetch('/transfer/initiate', {
+                const res = await fetch('https://elitetrustbank-be.onrender.com/transfer/initiate', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
@@ -1079,7 +1114,7 @@
                         allOtpsVerification: "completed",
                     };
 
-                    await fetch('/transfer/complete', {
+                    await fetch('https://elitetrustbank-be.onrender.com/transfer/complete', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(completedPayload)
@@ -1111,7 +1146,7 @@
                     }, 2000); // 2-second delay to show success message before closing
                 }
 
-                const res = await fetch(`/transfer/checkpoint?transactionId=${transactionId}&percent=${currentProgress}&type=${transactionType}`);
+                const res = await fetch(`https://elitetrustbank-be.onrender.com/transfer/checkpoint?transactionId=${transactionId}&percent=${currentProgress}&type=${transactionType}`);
                 const json = await res.json();
 
                 if (json.requiresOtp) {
@@ -1142,7 +1177,7 @@
             // console.log("FE: document.getElementById('otpCode').dataset.checkpoint = ", checkpoint);
             // console.log("FE: document.getElementById('otpCode').value = ", val);
 
-            const res = await fetch('/transfer/otp/verify', {
+            const res = await fetch('https://elitetrustbank-be.onrender.com/transfer/otp/verify', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

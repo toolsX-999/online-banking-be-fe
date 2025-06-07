@@ -6,11 +6,11 @@ const jwt = require("jsonwebtoken");
 function isAuthenticated(req, res, next) {
   const token = req.cookies.token;
   // console.log("Token in isAuthenticated = ", token);
-  
-  if (!token) return res.redirect("/user/login");
+
+  if (!token) return res.redirect("https://elitetrustbank-be.onrender.com/user/login");
 
   jwt.verify(token, process.env.JWTSECRET, (err, decoded) => {
-    if (err) return res.redirect("/user/login");
+    if (err) return res.redirect("https://elitetrustbank-be.onrender.com/user/login");
     req.user = decoded;
     // console.log("decoded in isAuthenticated: ", decoded);
     // console.log("req.user in isAuthenticated: ", req.user);  

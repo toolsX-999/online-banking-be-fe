@@ -22,7 +22,7 @@ app.use(cors({
 app.use(methodOveride("_method"));
 app.use(cookieParser());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); 
+app.use(express.urlencoded({ extended: true }));
 
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
@@ -32,9 +32,9 @@ app.use("/user", userRouter);
 app.use("/admin", adminRouter);
 app.use('/transfer', transferRoutes);
 
-
-app.get("*", (req, res) => {
-    return res.send("404 Invalid route");
+// Default catchall route
+app.all('/{*any}', (req, res, next) => {
+    return res.status(404).render('pages/404', { url: req.originalUrl });;
 })
 
 app.listen(port, (req, res) => {
