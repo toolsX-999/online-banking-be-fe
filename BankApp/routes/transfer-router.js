@@ -12,8 +12,8 @@ const nodemailer = require("nodemailer");
 const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   auth: {
-      user: process.env.EMAIL,
-      pass: process.env.PASSWORD,
+    user: process.env.EMAIL,
+    pass: process.env.PASSWORD,
   },
 });
 
@@ -31,7 +31,7 @@ router.post('/initiate', isAuthenticated, async (req, res) => {
 
   const userId = req.user.userId;
   // console.log(`fromAccount = ${fromAccountNumberHiddenField} and toAccount = ${recipient} in /initiate route`);
-  
+
   try {
     const transaction = await Transaction.create({
       userId,
@@ -43,9 +43,9 @@ router.post('/initiate', isAuthenticated, async (req, res) => {
       transactionType,
       remarks,
     });
-  
-    // console.log("Request entered /transfer route");
-    // console.log("Transaction saved in Transaction Table: ", transaction);
+
+    console.log("Request entered /transfer route");
+    console.log("Transaction saved in Transaction Table: ", transaction);
     // await transaction.save();
     return res.status(201).json({ transactionId: transaction._id });
   } catch (error) {
@@ -59,7 +59,8 @@ router.get('/checkpoint', isAuthenticated, async (req, res) => {
   const customerId = req.user.userId;
   // console.log("In /checkpoint route. customerId = ", customerId);
   // console.log("In /checkpoint route. transactionId, percent, type = ", transactionId, percent, type);
-  
+  console.log("Request received in /checkpoint route");
+
   if (!customerId || !transactionId || !percent || !type) {
     // console.log("Missing parameters in checkpoint");
     return res.status(400).json({ error: 'Missing parameters' });
@@ -68,11 +69,11 @@ router.get('/checkpoint', isAuthenticated, async (req, res) => {
   const customer = await Customer.findById(customerId);
   if (!customer) return res.status(404).json({ error: 'Customer not found' });
   // console.log("User found in /checkpoint route");
-  
+
 
   const settings = customer.otpSettings?.[type];
   // console.log("Settings in /checkpoint route = ", settings);
-  
+
   if (!settings || !settings.enabled || !Array.isArray(settings.checkpoints)) {
     console.log("OTP is not required in /checkout route");
     return res.json({ requiresOtp: false });
@@ -137,12 +138,13 @@ router.get('/checkpoint', isAuthenticated, async (req, res) => {
 // Verify OTP and allow transaction
 router.post('/otp/verify', async (req, res) => {
   const { transactionId, code, percent } = req.body;
+  console.log("Request received in /otp/verify route");
   // console.log("In /otp/verify route");
   // console.log("transactionId, code, percent in /otp/verify = ", transactionId, code, percent);
 
   const tx = await Transaction.findById(transactionId);
   if (!tx) return res.status(404).json({ error: 'Transaction not found' });
-  
+
   const customer = await Customer.findById(tx.userId);
   if (!customer) return res.status(404).json({ error: 'Customer not found' });
 
@@ -167,14 +169,14 @@ router.post('/otp/verify', async (req, res) => {
   // Mark checkpoint as used
   tx.usedCheckpoints.push(parseInt(percent));
   await tx.save();
-  
+
   return res.json({ success: true });
 });
 
 
 router.post("/complete", async (req, res) => {
-  // console.log("in /complete route BE");
-  const {transactionId, allOtpsVerification, recipientBank} = req.body;
+  console.log("Request received in /complete route");
+  const { transactionId, allOtpsVerification, recipientBank } = req.body;
   if (!transactionId || !allOtpsVerification || !recipientBank) {
     // console.log('Transaction not completed' );
     return res.status(401).json({ error: 'Transaction not completed' });
@@ -185,9 +187,9 @@ router.post("/complete", async (req, res) => {
     transaction.status = allOtpsVerification;
     await transaction.save();
     console.log("Transaction updated in BE /complete route");
-    
+
     // Update sender account balance
-    const senderAccount = await Account.findOne({customerId: transaction.userId});
+    const senderAccount = await Account.findOne({ customerId: transaction.userId });
     senderAccount.balance = parseFloat(senderAccount.balance - transaction.amount).toFixed(2);
     await senderAccount.save();
     const sender = await Customer.findById(transaction.userId);
@@ -195,9 +197,9 @@ router.post("/complete", async (req, res) => {
     // console.log("Sender Account updated in BE /complete route");
 
     if (recipientBank == "ELT-Bank") {
-      const recipientAccount = await Account.findOne({accountNumber: transaction.toAccount});
+      const recipientAccount = await Account.findOne({ accountNumber: transaction.toAccount });
       recipientAccount.balance = parseFloat(recipientAccount.balance + transaction.amount).toFixed(2);
-      await recipientAccount.save(); 
+      await recipientAccount.save();
       // Send email Alert to recipients email address
       // console.log("Recipient Account updated in BE /complete route");
       const recipientId = recipientAccount.customerId;
@@ -242,7 +244,7 @@ router.post("/complete", async (req, res) => {
               </small>
             </div>
           `
-        });      
+        });
       } catch (error) {
         console.log("Error email sending failed: ", error.message);
       }
@@ -288,7 +290,7 @@ router.post("/complete", async (req, res) => {
             </small>
           </div>
         `
-      });    
+      });
     } catch (error) {
       console.log("Error email sending failed: ", error.message);
     }
