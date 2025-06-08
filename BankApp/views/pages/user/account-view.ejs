@@ -470,7 +470,7 @@
                                                         account.accountType.slice(1) %> - <%= account.accountNumber %>
                                                 </option>
                                                 <script>
-                                                    const accounts = <% - JSON.stringify(user.accounts) %>
+                                                    const accounts = <%- JSON.stringify(user.accounts) %>;
                                                 </script>
                                                 <% }) %>
                                         </select>
@@ -1044,8 +1044,8 @@
         let interval;
         let transactionType;
         // Validate amount before transfer
-        // let currentBalance;
-        // let transactionAmount;
+        let currentBalance;
+        let transactionAmount;
         const fromAccSelect = document.getElementById("transferFromAccount");
         fromAccSelect.addEventListener("change", function () {
             const selectedAcc = this.value;
