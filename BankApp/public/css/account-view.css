@@ -34,9 +34,6 @@ h6 {
 }
 
 .content-header {
-    /* background-color: rgb(150, 6, 6); */
-    /* background-color: #a4c639; */
-    /* background-color: #a4c639; */
     background-color: rgb(145, 7, 7);
     padding: 10px;
     font-size: 20px;
@@ -66,7 +63,7 @@ h6 {
 /* Side navbar */
 .sidebar {
     position: fixed;
-    margin-top: 35px;
+    margin-top: 20px;
     height: 100vh;
     background-color: #e9ecef;
     padding: 10px;

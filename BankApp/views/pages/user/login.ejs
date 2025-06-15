@@ -162,7 +162,8 @@
             <!-- Login box -->
             <div class="col-sm-4 mb-5 login-container">
                 <!-- Alert success/failure div -->
-                <div id="formAlert" style="width: 80%;" class="alert alert-dismissible fade d-none" role="alert">
+                <div id="formAlert" style="width: 80%;" class="alert alert-dismissible fade d-none"
+                    role="alert">
                     <span id="alertMessage"></span>
                     <button type="button" class="btn-close" id="login-alert-status-button" aria-label="Close"></button>
                 </div>
@@ -175,8 +176,7 @@
 
 
                 <div class="login-form">
-                    <form id="loginForm" action="https://elitetrustbank-be.onrender.com/user/login" method="POST"
-                        novalidate>
+                    <form id="loginForm" action="<%= config.siteUrl %>/user/login" method="POST" novalidate>
                         <label for="email">Email ID</label>
                         <input type="text" id="email" name="email">
                         <div class="save-id">

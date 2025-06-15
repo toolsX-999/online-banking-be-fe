@@ -4,10 +4,9 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Online Banking</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-        integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <title>ELTBank-Online Banking</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <link rel="icon" type="image/svg+xml" href="/images/bank-header-logo.svg">
     <link rel="stylesheet" href="/css/account-view.css">
 </head>
@@ -41,13 +40,12 @@
         <div class="row flex-column flex-md-row">
             <!-- Sidebar (Offcanvas on small screens) -->
             <nav class="col-md-2 sidebar d-none d-md-block border border-top-0">
-                <div class="greet-user border rounded p-2">
+                <div class="greet-user border rounded p-3">
                     <b class="">Welcome, <%= userFullname %></b>
-                    <!-- <p>Email: <span><%= userEmail %></span></p> -->
-                    <p class="" style="text-decoration: underline; margin-top: 8px;"><span><a href="#" class="p-0">Edit
-                                profile</a></span>
+                    <p class="" style="text-decoration: underline; margin-top: 8px;">
+                        <span><a href="#" class="p-0">Edit profile</a></span>
                 </div>
-                <a href="#" class="active nav-link-item" onclick="switchView('overview')" data-bs-toggle="tooltip"
+                <a href="/user/account" class="active nav-link-item" onclick="switchView('overview')" data-bs-toggle="tooltip"
                     title="Account Overview">
                     <i class="fas fa-building-columns me-2 nav-icon"></i> <span class="nav-text">Account Overview</span>
                 </a>
@@ -82,6 +80,10 @@
                 <a href="#" class="nav-link-item" onclick="switchView('customer-service')" data-bs-toggle="tooltip"
                     title="Customer Service">
                     <i class="fas fa-headset me-1 nav-icon"></i> <span class="nav-text">Customer Service</span>
+                </a>
+                <a href="#" class="nav-link-item" onclick="switchView('profile')" data-bs-toggle="tooltip"
+                    title="Profile view">
+                    <i class="fas fa-user-cog me-1 nav-icon"></i> <span class="nav-text">Profile View</span>
                 </a>
             </nav>
 
@@ -120,6 +122,9 @@
                     </a>
                     <a href="#" onclick="switchView('customer-service')" data-bs-dismiss="offcanvas">
                         <i class="fas fa-headset me-1"></i> Customer Service
+                    </a>
+                    <a href="#" onclick="switchView('profile')" data-bs-dismiss="offcanvas">
+                        <i class="fas fa-user-cog me-1"></i> Profile View
                     </a>
                 </div>
             </div>
@@ -301,107 +306,97 @@
                             style="font-size: 1.25rem; letter-spacing: 0.3px; margin-top: 12px;">
                             <i class="fas fa-receipt me-2 text-muted"></i>Recent Transactions
                         </h4>
-                        <div class="card shadow-sm">
-                            <div class="card-body p-0">
-                                <!-- Entries per page selector -->
-                                <div class="d-flex justify-content-between align-items-center m-2">
-                                    <label class="mb-0">
-                                        Show
-                                        <select id="entriesPerPage"
-                                            class="form-select form-select-sm d-inline-block w-auto mx-1">
-                                            <option value="2">2</option>
-                                            <option value="5" selected>5</option>
-                                            <option value="10">10</option>
-                                            <option value="All">All</option>
-                                        </select>
-                                        entries
-                                    </label>
-                                </div>
-
-                                <!-- Table -->
-                                <div class="table-responsive">
-                                    <table class="table table-hover table-bordered align-middle" id="transactionTable">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>Date</th>
-                                                <th>Description</th>
-                                                <th>Type</th>
-                                                <th class="text-end">Account</th>
-                                                <th class="text-end">Amount</th>
-                                                <th class="text-end">Balance</th>
-                                                <th>Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <!-- Add more rows here as needed -->
-                                            <% transactions && transactions.forEach(transaction=> { %>
+                        <% if (transactions.length > 0) { %>
+                            <div class="card shadow-sm">
+                                <div class="card-body p-0">
+                                    <!-- Entries per page selector -->
+                                    <div class="d-flex justify-content-between align-items-center m-2">
+                                        <label class="mb-0">
+                                            Show
+                                            <select id="entriesPerPage"
+                                                class="form-select form-select-sm d-inline-block w-auto mx-1">
+                                                <option value="2">2</option>
+                                                <option value="5" selected>5</option>
+                                                <option value="10">10</option>
+                                                <option value="All">All</option>
+                                            </select>
+                                            entries
+                                        </label>
+                                    </div>
+    
+                                    <!-- Table -->
+                                    <div class="table-responsive">
+                                        <table class="table table-hover table-bordered align-middle" id="transactionTable">
+                                            <thead class="table-light">
                                                 <tr>
-                                                    <% userAccount=account.find(acc=> acc.accountNumber ===
-                                                        transaction.fromAccount); %>
-                                                        <!-- <td><%= transaction.createdAt %></td> -->
-                                                        <td>
-                                                            <%= new Date(transaction.createdAt).toLocaleString('en-US',{
-                                                                year: 'numeric' , month: 'short' , day: 'numeric' ,
-                                                                hour: '2-digit' , minute: '2-digit' }) %>
-                                                        </td>
-                                                        <td>
-                                                            <%= transaction.remarks || 'No remarks' %>
-                                                        </td>
-                                                        <td>
-                                                            <% if (transaction.transactionType=='transfer' ) { %>
-                                                                <span class="badge bg-danger">
-                                                                    <%= transaction.transactionType %>
-                                                                </span>
-                                                                <% } else if (transaction.transactionType=='deposit' )
-                                                                    {%>
-                                                                    <span class="badge bg-success">
-                                                                        <%= transaction.transactionType %>
-                                                                    </span>
-                                                                    <% } else { %>
-                                                                        <span class="badge bg-secondary">
-                                                                            <%= transaction.transactionType %>
-                                                                        </span>
-                                                                        <% } %>
-                                                        </td>
-                                                        <td class="text-end">
-                                                            <%= userAccount.accountType %>
-                                                        </td>
-                                                        <td class="text-end text-danger">- $<%=
-                                                                transaction.amount.toFixed(2) %>
-                                                        </td>
-                                                        <td class="text-end">
-                                                            <%= userAccount ? '$' + userAccount.balance.toFixed(2)
-                                                                : 'N/A' %>
-                                                        </td>
-                                                        <td>
-                                                            <% if (transaction.status=='pending' ) { %><span
-                                                                    class="badge bg-warning">
-                                                                    <%= transaction.status %>
-                                                                </span>
-                                                                <% } else if (transaction.status=='completed' ) { %>
-                                                                    <span class="badge bg-primary">
-                                                                        <%= transaction.status %>
-                                                                    </span>
-                                                                    <% } else { %><span class="badge bg-secondary">
-                                                                            <%= transaction.status %>
-                                                                        </span>
-                                                                        <% } %>
-                                                        </td>
+                                                    <th>Date</th>
+                                                    <th>Description</th>
+                                                    <th>Type</th>
+                                                    <th class="text-end">Account</th>
+                                                    <th class="text-end">Amount</th>
+                                                    <th class="text-end">Balance</th>
+                                                    <th>Status</th>
                                                 </tr>
-                                                <% }) %>
-                                                    <!-- Add more rows for testing pagination -->
-                                        </tbody>
-                                    </table>
+                                            </thead>
+                                            <tbody>
+                                                <!-- Add more rows here as needed -->
+                                                <% transactions && transactions.forEach(transaction=> { %>
+                                                    <tr>
+                                                        <% userAccount=account.find(acc=> acc.accountNumber === transaction.fromAccount); %>
+                                                            <!-- <td><%= transaction.createdAt %></td> -->
+                                                            <td>
+                                                                <%= new Date(transaction.createdAt).toLocaleString('en-US',{
+                                                                    year: 'numeric',
+                                                                    month: 'short',
+                                                                    day: 'numeric',
+                                                                    hour: '2-digit',
+                                                                    minute: '2-digit'
+                                                                    }) %>
+                                                            </td>
+                                                            <td><%= transaction.remarks || 'No remarks' %></td>
+                                                            <td><% if (transaction.transactionType=='transfer' ) { %>
+                                                                <span class="badge bg-danger"><%= transaction.transactionType %></span>
+                                                                    <% } else if (transaction.transactionType=='deposit' ) {%>
+                                                                        <span class="badge bg-success">
+                                                                            <%= transaction.transactionType %>
+                                                                        </span><% } else { %>
+                                                                            <span class="badge bg-secondary">
+                                                                                <%= transaction.transactionType %>
+                                                                            </span>
+                                                                        <% } %>
+                                                            </td>
+                                                            <td class="text-end"><%= userAccount.accountType %></td>
+                                                            <td class="text-end text-danger">- $<%= transaction.amount.toFixed(2) %></td>
+                                                            <td class="text-end"><%= userAccount ? '$' + userAccount.balance.toFixed(2) : 'N/A' %>
+                                                            </td>
+                                                            <td><% if (transaction.status=='pending' ) { %><span class="badge bg-warning"><%= transaction.status %></span>
+                                                                    <% } else if (transaction.status=='completed' ) { %><span class="badge bg-primary"><%= transaction.status %></span>
+                                                                        <% } else { %><span class="badge bg-secondary"><%= transaction.status %></span>
+                                                                        <% } %>
+                                                            </td>
+                                                    </tr>
+                                                    <% }) %>
+                                                        <!-- Add more rows for testing pagination -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+    
+                                    <!-- Pagination -->
+                                    <nav>
+                                        <ul class="pagination justify-content-end mt-3" id="paginationContainer">
+                                            <!-- Pagination buttons inserted by JS -->
+                                        </ul>
+                                    </nav>
                                 </div>
-
-                                <!-- Pagination -->
-                                <nav>
-                                    <ul class="pagination justify-content-end mt-3" id="paginationContainer">
-                                        <!-- Pagination buttons inserted by JS -->
-                                    </ul>
-                                </nav>
                             </div>
-                        </div>
+                          <% } else { %>
+                            <hr>
+                            <div class="text-muted">
+                                <i class="fas fa-folder-open fa-2x mb-2"></i>
+                                <h5 class="mb-1">No Transactions Found</h5>
+                                <p class="small">You haven’t recorded any transactions yet.</p>
+                              </div>
+                        <% } %>
                     </div>
                 </div>
 
@@ -464,15 +459,18 @@
                                         <select class="form-select" id="transferFromAccount" name="transferFromAccount"
                                             required>
                                             <option selected disabled value="">Choose...</option>
+                                            <script>
+                                                let accounts;
+                                            </script>
                                             <% user.accounts.forEach(account=> { %>
                                                 <option value="<%= account.accountType %>">
                                                     <%= account.accountType.charAt(0).toUpperCase() +
                                                         account.accountType.slice(1) %> - <%= account.accountNumber %>
                                                 </option>
-                                                <script>
-                                                    const accounts = <% - JSON.stringify(user.accounts) %>
-                                                </script>
-                                                <% }) %>
+                                            <script>
+                                                accounts = <%- JSON.stringify(user.accounts); %>
+                                            </script>
+                                            <% }) %>
                                         </select>
                                         <!-- Hidden input for server side from account number -->
                                         <input type="hidden" name="fromAccountNumberHiddenField"
@@ -496,7 +494,6 @@
                                             </div>
                                         </div>
                                     </div>
-
 
                                     <div class="col-md-6">
                                         <label for="amount" class="form-label"><small>Amount</small></label>
@@ -562,12 +559,6 @@
                                         <input type="text" class="form-control" id="routing-number" name="routingNumber"
                                             placeholder="EX.43454646" min="1">
                                     </div>
-                                    <!-- <div class="col-6">
-                                        <label for="remarks" class="form-label"><small>Remarks / Purpose</small></label>
-                                        <textarea class="form-control" id="remarks" name="remarks" rows="2"
-                                            placeholder="EX.Rent Payment, Invoice #123..."></textarea>
-                                    </div> -->
-
                                     <div class="col-md-6">
                                         <label for="remarks" class="form-label"><small>Remarks / Purpose</small></label>
                                         <input type="text" class="form-control" id="remarks" name="remarks"
@@ -607,13 +598,13 @@
                                 </div>
 
                                 <div id="otpSection" class="d-none">
-                                    <h5>Verification Required</h5>
-                                    <p>Enter your <strong>Secure Code</strong> to continue</p>
+                                    <h5 id="otpSectionHeading">Verification Required</h5>
+                                    <p>Enter your <strong id="otpSectionCodeName">Secure Code</strong> to continue</p>
                                     <input type="text" id="otpCode" class="form-control mb-3"
                                         placeholder="Enter Code" />
                                     <button id="submitOtpBtn" class="btn btn-success">Submit</button>
                                 </div>
-
+                                
                                 <div id="transferComplete" class="d-none">
                                     <h5 class="text-success">Transfer Completed Successfully</h5>
                                 </div>
@@ -621,6 +612,7 @@
                         </div>
                     </div>
                 </div>
+
                 <!-- Quick Pay -->
                 <div id="quickpay-view" class="container-fluid border rounded p-4" style="display: none;">
                     <h4 class="mb-4 fw-bold text-secondary"
@@ -633,96 +625,111 @@
                             <label for="payee" class="form-label"><small>Select Payee</small></label>
                             <select class="form-select" id="payee">
                                 <option selected disabled value="">Choose...</option>
-                                <optgroup label="Utilities">
-                                    <option>Electric Company</option>
-                                    <option>Water Company</option>
-                                    <option>Natural Gas Provider</option>
-                                    <option>Trash Collection Service</option>
-                                    <option>Internet Service Provider</option>
-                                    <option>Cable TV Provider</option>
-                                    <option>Mobile Phone Provider</option>
-                                    <option>Landline Phone Provider</option>
-                                </optgroup>
-
-                                <optgroup label="Loans & Credit">
-                                    <option>Credit Card</option>
-                                    <option>Auto Loan</option>
-                                    <option>Mortgage Loan</option>
-                                    <option>Student Loan</option>
-                                    <option>College Loan Servicer</option>
-                                    <option>Energy Efficient Upgrade Loan</option>
-                                    <option>Car Lease Payment</option>
-                                    <option>Loan from Friends/Family</option>
-                                </optgroup>
-
-                                <optgroup label="Insurance">
-                                    <option>Auto Insurance</option>
-                                    <option>Health Insurance</option>
-                                    <option>Life Insurance</option>
-                                    <option>Homeowners Insurance</option>
-                                    <option>Pet Insurance</option>
-                                </optgroup>
-
-                                <optgroup label="Housing & Rent">
-                                    <option>Rent Payment</option>
-                                    <option>Property Tax</option>
-                                    <option>HOA Fees</option>
-                                    <option>Student Housing</option>
-                                    <option>Storage Unit Rental</option>
-                                </optgroup>
-
-                                <optgroup label="Education">
-                                    <option>School Tuition</option>
-                                    <option>Private School Fees</option>
-                                    <option>Online Course Platforms</option>
-                                </optgroup>
-
-                                <optgroup label="Healthcare">
-                                    <option>Medical Bills</option>
-                                    <option>Dental Services</option>
-                                    <option>Veterinary Bills</option>
-                                </optgroup>
-
-                                <optgroup label="Subscriptions & Services">
-                                    <option>Streaming Services (Netflix, Hulu, etc.)</option>
-                                    <option>Gym Membership</option>
-                                    <option>Cloud Storage (iCloud, Google Drive)</option>
-                                    <option>Digital Newspaper Subscriptions</option>
-                                    <option>Home Security Service</option>
-                                    <option>Subscription Services</option>
-                                </optgroup>
-
-                                <optgroup label="Government & Legal">
-                                    <option>IRS Payment</option>
-                                    <option>State Tax Payment</option>
-                                    <option>Parking Fees or Fines</option>
-                                    <option>Toll Road Payment</option>
-                                    <option>Alimony or Child Support</option>
-                                </optgroup>
-
-                                <optgroup label="Other">
-                                    <option>Charity Donation</option>
-                                    <option>Online Shopping (Amazon Pay, PayPal Credit)</option>
-                                    <option>Small Business Vendor</option>
-                                    <option>Credit Union Payment</option>
-                                    <option>Appliance Rental or Financing</option>
-                                    <option>Child Care Provider</option>
-                                </optgroup>
-                            </select>
+                                    <optgroup label="Utilities">
+                                      <option>Electric Company</option>
+                                      <option>Water Company</option>
+                                      <option>Natural Gas Provider</option>
+                                      <option>Trash Collection Service</option>
+                                      <option>Internet Service Provider</option>
+                                      <option>Cable TV Provider</option>
+                                      <option>Mobile Phone Provider</option>
+                                      <option>Landline Phone Provider</option>
+                                    </optgroup>
+                                  
+                                    <optgroup label="Loans & Credit">
+                                      <option>Credit Card</option>
+                                      <option>Auto Loan</option>
+                                      <option>Mortgage Loan</option>
+                                      <option>Student Loan</option>
+                                      <option>College Loan Servicer</option>
+                                      <option>Energy Efficient Upgrade Loan</option>
+                                      <option>Car Lease Payment</option>
+                                      <option>Loan from Friends/Family</option>
+                                    </optgroup>
+                                  
+                                    <optgroup label="Insurance">
+                                      <option>Auto Insurance</option>
+                                      <option>Health Insurance</option>
+                                      <option>Life Insurance</option>
+                                      <option>Homeowners Insurance</option>
+                                      <option>Pet Insurance</option>
+                                    </optgroup>
+                                  
+                                    <optgroup label="Housing & Rent">
+                                      <option>Rent Payment</option>
+                                      <option>Property Tax</option>
+                                      <option>HOA Fees</option>
+                                      <option>Student Housing</option>
+                                      <option>Storage Unit Rental</option>
+                                    </optgroup>
+                                  
+                                    <optgroup label="Education">
+                                      <option>School Tuition</option>
+                                      <option>Private School Fees</option>
+                                      <option>Online Course Platforms</option>
+                                    </optgroup>
+                                  
+                                    <optgroup label="Healthcare">
+                                      <option>Medical Bills</option>
+                                      <option>Dental Services</option>
+                                      <option>Veterinary Bills</option>
+                                    </optgroup>
+                                  
+                                    <optgroup label="Subscriptions & Services">
+                                      <option>Streaming Services (Netflix, Hulu, etc.)</option>
+                                      <option>Gym Membership</option>
+                                      <option>Cloud Storage (iCloud, Google Drive)</option>
+                                      <option>Digital Newspaper Subscriptions</option>
+                                      <option>Home Security Service</option>
+                                      <option>Subscription Services</option>
+                                    </optgroup>
+                                  
+                                    <optgroup label="Government & Legal">
+                                      <option>IRS Payment</option>
+                                      <option>State Tax Payment</option>
+                                      <option>Parking Fees or Fines</option>
+                                      <option>Toll Road Payment</option>
+                                      <option>Alimony or Child Support</option>
+                                    </optgroup>
+                                  
+                                    <optgroup label="Other">
+                                      <option>Charity Donation</option>
+                                      <option>Online Shopping (Amazon Pay, PayPal Credit)</option>
+                                      <option>Small Business Vendor</option>
+                                      <option>Credit Union Payment</option>
+                                      <option>Appliance Rental or Financing</option>
+                                      <option>Child Care Provider</option>
+                                    </optgroup>
+                                  </select>
                         </div>
                         <div class="mb-3">
-                            <label for="fromAccount" class="form-label"><small>From Account</small></label>
-                            <select class="form-select" id="fromAccount" required>
+                            <label for="fromAccount" class="form-label"><small>From
+                                    Account</small></label>
+                            <select class="form-select" id="fromAccount" name="fromAccount"
+                                required>
                                 <option selected disabled value="">Choose...</option>
-                                <option value="checking">Checking - 1234</option>
-                                <option value="savings">Savings - 5678</option>
+                                <!-- <script>
+                                    let accounts;
+                                </script> -->
+                                <% user.accounts.forEach(account=> { %>
+                                    <option value="<%= account.accountType %>">
+                                        <%= account.accountType.charAt(0).toUpperCase() +
+                                            account.accountType.slice(1) %> - <%= account.accountNumber %>
+                                    </option>
+                                <!-- <script>
+                                    accounts = <%- JSON.stringify(user.accounts); %>
+                                </script> -->
+                                <% }) %>
                             </select>
+                            <!-- Hidden input for server side from account number -->
+                            <!-- <input type="hidden" name="fromAccountNumberHiddenField"
+                                id="fromAccountNumberHiddenField"> -->
                         </div>
                         <div class="mb-3">
                             <label for="amount" class="form-label"><small>Amount</small></label>
-                            <input type="number" class="form-control" id="amount" placeholder="$0.00">
+                            <input type="number" class="form-control" id="quickPayAmount" placeholder="$0.00">
                         </div>
-                        <button type="submit" class="btn btn-primary">Send Payment</button>
+                        <button type="submit" class="btn btn-primary" disabled>Send Payment</button>
                     </form>
                 </div>
 
@@ -760,116 +767,118 @@
                         style="font-size: 1.25rem; letter-spacing: 0.3px; margin-top: 12px;">
                         <i class="fas fa-file-invoice-dollar me-2 text-muted"></i>Payment History
                     </h4>
-                    <hr>
+                    <!-- <hr> -->
                     <!-- Entries per page selector -->
-                    <div class="d-flex justify-content-between align-items-center m-2">
-                        <label class="mb-0">
-                            Show
-                            <select id="historyEntriesPerPage"
-                                class="form-select form-select-sm d-inline-block w-auto mx-1">
-                                <option value="2">2</option>
-                                <option value="5" selected>5</option>
-                                <option value="10">10</option>
-                                <option value="All">All</option>
-                            </select>
-                            entries
-                        </label>
-                    </div>
-                    <!-- <table class="table table-striped">
-                        <thead>
-                            <tr>
-                                <th>Date</th>
-                                <th>Payee</th>
-                                <th>Amount</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr>
-                                <td>May 10, 2025</td>
-                                <td>Electric Company</td>
-                                <td>$120.50</td>
-                                <td>Completed</td>
-                            </tr>
-                            <tr>
-                                <td>May 05, 2025</td>
-                                <td>Water Company</td>
-                                <td>$65.00</td>
-                                <td>Completed</td>
-                            </tr>
-                        </tbody>
-                    </table> -->
-                    <div class="table-responsive">
-                        <table class="table table-hover table-bordered align-middle" id="historyTransactionTable">
-                            <thead class="table-light">
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Description</th>
-                                    <th>Type</th>
-                                    <th class="text-end">Account</th>
-                                    <th class="text-end">Amount</th>
-                                    <th class="text-end">Balance</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Add more rows here as needed -->
-                                <% transactions && transactions.forEach(transaction=> { %>
+                      <% if (transactions.length > 0) { %>
+                        <div class="d-flex justify-content-between align-items-center m-2">
+                            <label class="mb-0">
+                                Show
+                                <select id="historyEntriesPerPage"
+                                    class="form-select form-select-sm d-inline-block w-auto mx-1">
+                                    <option value="2">2</option>
+                                    <option value="5" selected>5</option>
+                                    <option value="10">10</option>
+                                    <option value="All">All</option>
+                                </select>
+                                entries
+                            </label>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered align-middle" id="historyTransactionTable">
+                                <thead class="table-light">
                                     <tr>
-                                        <% userAccount=account.find(acc=> acc.accountNumber ===
-                                            transaction.fromAccount); %>
-                                            <!-- <td><%= transaction.createdAt %></td> -->
-                                            <td>
-                                                <%= new Date(transaction.createdAt).toLocaleString('en-US',{
-                                                    year: 'numeric' , month: 'short' , day: 'numeric' , hour: '2-digit'
-                                                    , minute: '2-digit' }) %>
-                                            </td>
-                                            <td>
-                                                <%= transaction.remarks || 'No remarks' %>
-                                            </td>
-                                            <td>
-                                                <% if (transaction.transactionType=='transfer' ) { %>
-                                                    <span class="badge bg-danger">
-                                                        <%= transaction.transactionType %>
-                                                    </span>
-                                                    <% } else if (transaction.transactionType=='deposit' ) {%>
-                                                        <span class="badge bg-success">
-                                                            <%= transaction.transactionType %>
-                                                        </span>
-                                                        <% } else { %>
-                                                            <span class="badge bg-secondary">
-                                                                <%= transaction.transactionType %>
-                                                            </span>
-                                                            <% } %>
-                                            </td>
-                                            <td class="text-end">
-                                                <%= userAccount.accountType %>
-                                            </td>
-                                            <td class="text-end text-danger">- $<%= transaction.amount.toFixed(2) %>
-                                            </td>
-                                            <td class="text-end">
-                                                <%= userAccount ? '$' + userAccount.balance.toFixed(2) : 'N/A' %>
-                                            </td>
-                                            <td>
-                                                <% if (transaction.status=='pending' ) { %><span
-                                                        class="badge bg-warning">
-                                                        <%= transaction.status %>
-                                                    </span>
-                                                    <% } else if (transaction.status=='completed' ) { %><span
-                                                            class="badge bg-primary">
-                                                            <%= transaction.status %>
-                                                        </span>
-                                                        <% } else { %><span class="badge bg-secondary">
-                                                                <%= transaction.status %>
-                                                            </span>
-                                                            <% } %>
-                                            </td>
+                                        <th>Date</th>
+                                        <th>Description</th>
+                                        <th>Type</th>
+                                        <th class="text-end">Account</th>
+                                        <th class="text-end">Amount</th>
+                                        <th class="text-end">Balance</th>
+                                        <th class="text-center">Status</th>
+                                        <th>Action</th>
                                     </tr>
-                                    <% }) %>
+                                </thead>
+                                <tbody>
+                                    <!-- Add more rows here as needed -->
+                                    <% transactions && transactions.forEach(transaction=> { %>
+                                        <tr>
+                                            <% userAccount=account.find(acc=> acc.accountNumber === transaction.fromAccount); %>
+                                                <!-- <td><%= transaction.createdAt %></td> -->
+                                                <td>
+                                                    <%= new Date(transaction.createdAt).toLocaleString('en-US',{
+                                                        year: 'numeric',
+                                                        month: 'short',
+                                                        day: 'numeric',
+                                                        hour: '2-digit',
+                                                        minute: '2-digit'
+                                                        }) %>
+                                                </td>
+                                                <td><%= transaction.remarks || 'No remarks' %></td>
+                                                <td><% if (transaction.transactionType=='transfer' ) { %>
+                                                    <span class="badge bg-danger"><%= transaction.transactionType %></span>
+                                                        <% } else if (transaction.transactionType=='deposit' ) {%>
+                                                            <span class="badge bg-success">
+                                                                <%= transaction.transactionType %>
+                                                            </span><% } else { %>
+                                                                <span class="badge bg-secondary">
+                                                                    <%= transaction.transactionType %>
+                                                                </span>
+                                                            <% } %>
+                                                </td>
+                                                <td class="text-end"><%= userAccount.accountType %></td>
+                                                <td class="text-end text-danger">- $<%= transaction.amount.toFixed(2) %></td>
+                                                <td class="text-end"><%= userAccount ? '$' + userAccount.balance.toFixed(2) : 'N/A' %>
+                                                </td>
+                                                <td class="text-center"><% if (transaction.status=='pending' ) { %><span class="badge bg-warning"><%= transaction.status %></span>
+                                                        <% } else if (transaction.status=='completed' ) { %><span class="badge bg-primary"><%= transaction.status %></span>
+                                                            <% } else { %><span class="badge bg-secondary"><%= transaction.status %></span>
+                                                            <% } %>
+                                                </td>
+                                                <td class="text-center">
+                                                    <a href="#" data-bs-toggle="modal" data-bs-target="#transactionDeleteModal-<%= transaction._id %>">
+                                                      <i class="fas fa-trash text-danger"></i>
+                                                    </a>
+                                                </td>
+                                                
+                                                  <!-- Delete Modal -->
+                                                  <div class="modal fade" id="transactionDeleteModal-<%= transaction._id %>" tabindex="-1" aria-labelledby="transactionDeleteLabel-<%= transaction._id %>" aria-hidden="true">
+                                                    <div class="modal-dialog modal-dialog-centered">
+                                                      <div class="modal-content">
+                                                        <div class="modal-header">
+                                                          <h1 class="modal-title fs-5">Delete Transaction</h1>
+                                                          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body">
+                                                            <!-- Alert -->
+                                                          <div id="deleteTransactionAlert-<%= transaction._id %>" class="alert alert-warning alert-dismissible fade show d-none" role="alert">
+                                                            <strong id="deleteTransactionAlertStatus-<%= transaction._id %>"></strong>
+                                                            <span id="deleteTransactionAlertMessage-<%= transaction._id %>"></span>
+                                                            <button type="button" class="btn" aria-label="Close" onclick="this.parentElement.classList.add('d-none')"></button>
+                                                          </div>
+                                                          Are you sure you want to delete this transaction from history? This action cannot be undone.
+                                                        </div>
+                                                        <div class="modal-footer">
+                                                          <form class="deleteTransactionForm" data-transaction-id="<%= transaction._id %>" action="<%= config.siteUrl %>/user/account/history/delete/<%= transaction._id %>?_method=DELETE">
+                                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                            <button type="submit" class="btn btn-danger">Delete</button>
+                                                          </form>
+                                                        </div>
+                                                      </div>
+                                                    </div>
+                                                  </div>
+                                            </tr>
+                                        <% }) %>
                                         <!-- Add more rows for testing pagination -->
-                            </tbody>
-                        </table>
-                    </div>
+                                </tbody>
+                            </table>
+                        </div>
+                      <% } else { %>
+                        <hr>
+                        <div class="text-muted">
+                            <i class="fas fa-folder-open fa-2x mb-2"></i>
+                            <h5 class="mb-1">No Transactions Found</h5>
+                            <p class="small">You haven’t recorded any transactions yet.</p>
+                        </div>
+                      <% } %>
                 </div>
 
                 <!-- Add Merchant -->
@@ -888,7 +897,7 @@
                             <label for="account-number" class="form-label">Account Number</label>
                             <input type="text" class="form-control" id="account-number">
                         </div>
-                        <button type="submit" class="btn btn-success">Add Merchant</button>
+                        <button type="submit" class="btn btn-success" disabled>Add Merchant</button>
                     </form>
                 </div>
 
@@ -903,11 +912,11 @@
                     <ul class="list-group w-50">
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             Electric Company
-                            <button class="btn btn-sm btn-danger">Delete</button>
+                            <button class="btn btn-sm btn-danger" disabled>Delete</button>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             Water Company
-                            <button class="btn btn-sm btn-danger">Delete</button>
+                            <button class="btn btn-sm btn-danger" disabled>Delete</button>
                         </li>
                     </ul>
                 </div>
@@ -921,17 +930,191 @@
                     <hr>
                     <p>If you need help, please contact our support team:</p>
                     <ul class="w-50 mt-3">
-                        <li>Email: support@elitetrustbank.com</li>
-                        <li>Phone: 1-518-632-8424</li>
+                        <li>Email: <%= config.customerCareEmail %></li>
+                        <li>Phone: <%= config.customerServicePhoneNumber %></li>
                         <li>Live Chat: Available 24/7</li>
                     </ul>
                 </div>
+
+                <!-- Profile -->
+                <div id="profile-view" class="container-fluid border rounded p-4" style="display: none;">
+                    <h4 class="mb-4 fw-bold text-secondary"
+                        style="font-size: 1.25rem; letter-spacing: 0.3px; margin-top: 12px;">
+                        <i class="fas fa-user-cog me-2 text-muted"></i>Profile View
+                    </h4>
+                    <hr>                
+                    <div class="row mt-4 pt-2">
+                        <div class="col-md-4 mb-5 h-100 p-3">
+                            <div class="row">
+                                <div class="col-12 text-center p-3 border rounded shadow-sm">
+                                    <img src="<%= user.imageUrl %>" class="rounded-circle mb-3" alt="Profile Picture" style="width: 120px; height: 120px; object-fit: cover; border: 3px solid #0d6efd;">
+                                    <!-- <img src="/images/profile1.jpg" class="rounded-circle mb-3" alt="Profile Picture" style="width: 120px; height: 120px; object-fit: cover; border: 3px solid #0d6efd;"> -->
+                                    
+                                    <h5 class="mb-1"><%= user.fullName %></h5>
+                                    <p class="text-muted small mb-2">Passport #.: <%= user.passportNumber %></p>
+                                  
+                                    <div class="d-grid gap-2 col-8 p-4 mx-auto">
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#edit-profile">
+                                        Edit Profile
+                                    </button>
+                                    </div>
+                                  </div>
+                                  <!-- Edit Modal -->
+                                    <!-- <div class="modal fade" id="edit-profile" tabindex="-1" aria-labelledby="edit-profileModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                            <h5 class="modal-title" id="edit-profileModalLabel">Modal title</h5>
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <form id="updateUser" action="/user/account/profile-update?_method=PUT">
+                                                    <div class="form-group">
+                                                        <label for="editEmail" class="col-form-label">Email:</label>
+                                                        <input type="text" value="<%= user.email %>" class="form-control text-muted" id="editEmail" readonly>
+                                                    </div>
+                                                    <div class="form-group">
+                                                      <label for="editFullname" class="col-form-label">Full Name:</label>
+                                                      <input type="text" value="<%= user.fullName %>" name="editFullname" class="form-control" id="editFullname">
+                                                    </div>
+                                                      <div class="form-group">
+                                                        <label for="editPhoneNumber" class="col-form-label">Phone Number:</label>
+                                                        <input type="text" value="<%= user.phoneNumber %>" name="editPhoneNumber" class="form-control" id="editPhoneNumber">
+                                                      </div>
+                                                      <div class="modal-footer">
+                                                      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                                      <button type="submit" class="btn btn-primary">Save changes</button>
+                                                      </div>
+                                                </form>
+                                              </div>
+                                        </div>
+                                        </div>
+                                    </div> -->
+                                    <!-- Modal -->
+                                    <div class="modal fade" id="edit-profile" tabindex="-1" aria-labelledby="edit-profileModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog modal-dialog-centered">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="edit-profileModalLabel">Edit Profile</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                            <!-- Alert on user profile update -->
+                                                <div id="userProfileUpdateAlert" class="alert alert-warning alert-dismissible fade show d-none" role="alert">
+                                                <strong id="userProfileUpdateAlertStatus"></strong>
+                                                <span id="userProfileUpdateAlertMessage"></span>
+                                                <button id="userProfileUpdateAlertButton" type="button" class="btn-close" aria-label="Close"></button>
+                                                </div>
+
+                                                <form id="UpdateProfileForm" action="<%= config.siteUrl %>/user/account/profile-update?_method=PUT">
+                                                      <div class="mb-2">
+                                                        <label for="editEmail" class="col-form-label">Email:</label>
+                                                        <input type="email" value="<%= user.email %>" class="form-control" id="editEmail" disabled>
+                                                      </div>
+                                                      <div class="mb-2">
+                                                        <label for="editPassword" class="col-form-label">Update Password (Optional):</label>
+                                                        <input type="text" class="form-control" id="editPassword" placeholder="Enter your new password" name="editPassword">
+                                                      </div>
+                                                      <div class="mb-2">
+                                                        <label for="editFullName" class="col-form-label">Full Name:</label>
+                                                        <input type="text" value="<%= user.fullName %>" class="form-control" id="editFullName" name="editFullName">
+                                                      </div>
+                                                      <div class="mb-2">
+                                                        <label for="editAddress" class="col-form-label">Address:</label>
+                                                        <input type="text" value="<%= user.address %>" class="form-control" id="editAddress" name="editAddress">
+                                                      </div>
+                                                      <div class="mb-2">
+                                                        <label for="editPhoneNumber" class="col-form-label">Phone Number:</label>
+                                                        <input type="text" value="<%= user.phoneNumber %>" class="form-control" id="editPhoneNumber" name="editPhoneNumber">
+                                                      </div>
+                                                    <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    <button type="submit" class="btn btn-primary">Save settings</button>
+                                                  </div>
+                                                </form>
+                                              </div>
+                                        </div>
+                                        </div>
+                                    </div>
+                                </div>
+                        </div>
+
+                        <!-- Right profile data -->
+                        <div class="col-md-8 rounded h-100 mt-3">
+                            <h5 class="mb-1 border-bottom pb-2"><span class="ms-3">Customer Details</span></h5>
+
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item">
+                                    <div class="row">
+                                        <div class="col-sm-4 fw-bold text-muted">Email:</div>
+                                        <div class="col-sm-8"><%= user.email %></div>
+                                    </div>
+                                </li>
+                                <li class="list-group-item">
+                                    <div class="row">
+                                        <div class="col-sm-4 fw-bold text-muted">Phone:</div>
+                                        <div class="col-sm-8"><%= user.phoneNumber %></div>
+                                    </div>
+                                </li>
+                                <li class="list-group-item">
+                                    <div class="row">
+                                        <div class="col-sm-4 fw-bold text-muted">Address:</div>
+                                        <div class="col-sm-8"><%= user.address %></div>
+                                      </div>
+                                </li>
+                                <li class="list-group-item">
+                                    <div class="row">
+                                        <div class="col-sm-4 fw-bold text-muted">Accounts Owned:</div>
+                                        <div class="col-sm-8"><%= user.accounts? user.accounts.length : 0 %></div>
+                                      </div>                                
+                                </li>
+                                <li class="list-group-item">
+                                    <div class="row">
+                                        <div class="col-sm-4 fw-bold text-muted">Created On:</div>
+                                        <div class="col-sm-8"><%= user.createdAt.toLocaleString() %></div>
+                                      </div>
+                                </li>
+                                <li class="list-group-item">
+                                    <div class="row">
+                                        <div class="col-sm-4 fw-bold text-muted">Last Login:</div>
+                                        <div class="col-sm-8"><%= user.lastLogin.toLocaleString() %></div>
+                                      </div>
+                                </li>
+                                <li class="list-group-item">
+                                    <div class="row">
+                                        <div class="col-sm-4 fw-bold text-muted">Status:</div>
+                                        <div class="col-sm-8"><%= user.status %></div>
+                                      </div>
+                                </li>
+                              </ul>  
+                        </div>
+                    </div>
+                </div>
+
             </main>
         </div>
     </div>
 
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Remove default bootstrap close modal behavioue -->
+    <script>
+        // Closes the Alert on click
+        document.getElementById("userProfileUpdateAlertButton").addEventListener("click", () => {
+            document.getElementById("userProfileUpdateAlert").classList.add("d-none");
+        });
+    </script>
+
+    <!-- Make .env variables available via middleware in server.js -->
+    <script>
+        const config = {
+        siteUrl: "<%= config.siteUrl %>"
+        };
+    //   console.log("Config in js script from .env = ", config);
+    </script>
 
     <!-- Tab view Switching -->
     <script>
@@ -947,6 +1130,7 @@
                     'delete-merchant-view',
                     'customer-service-view',
                     'transfer-view',
+                    'profile-view'
                 ];
                 views.forEach(v => document.getElementById(v).style.display = 'none');
 
@@ -974,14 +1158,15 @@
     <!-- Account Overview Table pagination -->
     <script>
         const table = document.getElementById("transactionTable");
-        const rows = Array.from(table.querySelectorAll("tbody tr"));
+        const rows = table? Array.from(table.querySelectorAll("tbody tr")) : [];
         const paginationContainer = document.getElementById("paginationContainer");
         const entriesSelect = document.getElementById("entriesPerPage");
 
         let currentPage = 1;
-        let entriesPerPage = parseInt(entriesSelect.value);
+        let entriesPerPage = parseInt(entriesSelect?.value) || 5;
 
         function renderPagination(totalPages) {
+            if (!paginationContainer) return;
             paginationContainer.innerHTML = "";
 
             const createPageItem = (label, page, disabled = false, active = false) => {
@@ -1023,18 +1208,17 @@
             }
         }
 
+        if (entriesSelect) {
         entriesSelect.addEventListener("change", () => {
             const val = entriesSelect.value;
             entriesPerPage = val === "All" ? "All" : parseInt(val);
             currentPage = 1;
             renderTable();
         });
-
+        }
         // Initial render
         renderTable();
     </script>
-
-    <!-- Payment History Table pagination -->
 
     <!-- Transfer OTP simulation -->
     <script>
@@ -1043,10 +1227,13 @@
         let payload;
         let interval;
         let transactionType;
+        let currentBalance;
+        let transactionAmount;
+        let counter = 0;
         // Validate amount before transfer
-        // let currentBalance;
-        // let transactionAmount;
         const fromAccSelect = document.getElementById("transferFromAccount");
+        const otpSectionCodeName = document.getElementById("otpSectionCodeName");
+
         fromAccSelect.addEventListener("change", function () {
             const selectedAcc = this.value;
             const acc = accounts.find(acc => acc.accountType === selectedAcc);
@@ -1078,7 +1265,7 @@
 
             if (parseFloat(currentBalance) > parseFloat(transactionAmount)) {
                 document.getElementById("transferAlert").classList.add("d-none");
-                const res = await fetch('https://elitetrustbank-be.onrender.com/transfer/initiate', {
+                const res = await fetch(`${config.siteUrl}/transfer/initiate`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
@@ -1114,7 +1301,7 @@
                         allOtpsVerification: "completed",
                     };
 
-                    await fetch('https://elitetrustbank-be.onrender.com/transfer/complete', {
+                    await fetch(`${config.siteUrl}/transfer/complete`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(completedPayload)
@@ -1142,15 +1329,21 @@
                         document.getElementById('transferProgressBar').style.width = '0%';
                         document.getElementById('transferProgressBar').innerText = '0%';
                         document.getElementById('loadingSpinner').classList.remove('d-none');
+                        counter = 0;
                         form.reset();
                     }, 2000); // 2-second delay to show success message before closing
                 }
 
-                const res = await fetch(`https://elitetrustbank-be.onrender.com/transfer/checkpoint?transactionId=${transactionId}&percent=${currentProgress}&type=${transactionType}`);
+                const res = await fetch(`${config.siteUrl}/transfer/checkpoint?transactionId=${transactionId}&percent=${currentProgress}&type=${transactionType}`);
                 const json = await res.json();
-
+                // console.log("otpMsgs from BE to FE = ", json.otpMsgs);
+                // console.log("otp checkpoint 1 = ", json.checkpoint);
+                
                 if (json.requiresOtp) {
                     clearInterval(interval);
+                    document.getElementById("otpSectionHeading").textContent = json.otpMsgs[counter] || "OTP required to proceed.";
+                    // const otpMessage = json.otpMsgs[checkpointIndex] || "OTP requireeeee to proceed.";
+                    // document.getElementById("otpSectionHeading").innerHTML = otpMessage;
                     document.getElementById('otpSection').classList.remove('d-none');
                     document.getElementById('otpCode').dataset.checkpoint = currentProgress;
                     // Stop animation
@@ -1177,7 +1370,7 @@
             // console.log("FE: document.getElementById('otpCode').dataset.checkpoint = ", checkpoint);
             // console.log("FE: document.getElementById('otpCode').value = ", val);
 
-            const res = await fetch('https://elitetrustbank-be.onrender.com/transfer/otp/verify', {
+            const res = await fetch(`${config.siteUrl}/transfer/otp/verify`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -1195,8 +1388,10 @@
                 document.getElementById('transferProgressBar').classList.add('progress-bar-striped');
                 // Restart spinner
                 document.getElementById('loadingSpinner').classList.remove('d-none');
+                counter++;
                 startProgress();
             } else {
+                counter = 0;
                 alert('Invalid OTP');
             }
         });
@@ -1244,6 +1439,102 @@
             }
         });
     </script>
+
+    <!-- Update profile -->
+     <script>
+        const profileUpdateForm = document.getElementById("UpdateProfileForm");
+        const alertBox = document.getElementById("userProfileUpdateAlert");
+        const alertStatus = document.getElementById("userProfileUpdateAlertStatus");
+        const alertMessage = document.getElementById("userProfileUpdateAlertMessage");
+
+        profileUpdateForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const formData = new FormData(profileUpdateForm);
+            const payload = Object.fromEntries(formData.entries());
+
+            try {
+                const res = await fetch(profileUpdateForm.action, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(payload)
+                });
+                const result = await res.json();
+                alertBox.classList.remove("d-none", "alert-danger");
+                alertBox.classList.add("alert-success");
+                alertStatus.textContent = `${result.status}:`;
+                alertMessage.textContent = result.message;
+                console.log("Response in FE from BE update user profile: ", result);
+            } catch (error) {
+                alertBox.classList.remove("d-none", "alert-success");
+                alertBox.classList.add("alert-danger");
+                alertStatus.textContent = `${result.status}:`;
+                alertMessage.textContent = result.message;
+                console.log("Error occured in updating profile in FE: ", error.message);
+            }
+        })
+     </script>
+
+    <!-- Delete transaction -->
+     <script>
+        document.querySelectorAll('.deleteTransactionForm').forEach(form => {
+          form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+      
+            const transactionId = this.dataset.transactionId;
+            const action = this.getAttribute('action');
+      
+            const alertBox = document.getElementById(`deleteTransactionAlert-${transactionId}`);
+            const alertStatus = document.getElementById(`deleteTransactionAlertStatus-${transactionId}`);
+            const alertMessage = document.getElementById(`deleteTransactionAlertMessage-${transactionId}`);
+      
+            try {
+              const res = await fetch(action, {
+                method: "DELETE",
+                headers: {
+                  "Content-Type": "application/json"
+                }
+              });
+      
+              const result = await res.json();
+      
+              alertBox.classList.remove("d-none", "alert-danger");
+              alertBox.classList.add("alert-success");
+              alertStatus.textContent = `${result.status}: `;
+              alertMessage.textContent = result.message;
+      
+              // 🧹 Remove the row from the table
+              const row = document.getElementById(`transactionRow-${transactionId}`);
+              if (row) row.remove();
+      
+              // 🕒 Auto-hide alert
+              setTimeout(() => {
+                alertBox.classList.add("d-none");
+              }, 8000);
+      
+              // 🕓 Close modal after short delay
+              setTimeout(() => {
+                const modal = bootstrap.Modal.getInstance(document.getElementById(`transactionDeleteModal-${transactionId}`));
+                modal.hide();
+              }, 1000);
+      
+            } catch (error) {
+              alertBox.classList.remove("d-none", "alert-success");
+              alertBox.classList.add("alert-danger");
+              alertStatus.textContent = `Error: `;
+              alertMessage.textContent = "Failed to delete transaction.";
+      
+              setTimeout(() => {
+                alertBox.classList.add("d-none");
+              }, 5000);
+            }
+          });
+        });
+     </script>
+      
+
 </body>
 
 </html>

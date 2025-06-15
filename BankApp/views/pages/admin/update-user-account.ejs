@@ -31,7 +31,7 @@
 
 
         <!-- <form id="updateForm" action="/admin/register-user" method="POST" novalidate> -->
-        <form id="updateForm" action="https://elitetrustbank-be.onrender.com/admin/update-user" method="POST">
+        <form id="updateForm" action="<%= config.siteUrl %>/admin/update-user" method="POST">
             <div class="mb-3">
                 <div class="input-group">
                     <span class="input-group-text"><i class="fas fa-user"></i></span>
@@ -116,6 +116,15 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    
+      <!-- Make .env variables available via middleware in server.js -->
+    <script>
+        const config = {
+        siteUrl: "<%= config.siteUrl %>"
+        };
+    //   console.log("Config in js script from .env = ", config);
+    </script>
+    
     <script>
         // Dark mode toggle
         function toggleTheme() {
@@ -133,7 +142,7 @@
             <option selected disabled value="">Choose account type...</option>
             `;
             try {
-                const res = await fetch(`https://elitetrustbank-be.onrender.com/admin/user-missing-accounts/${userId}`);
+                const res = await fetch(`${config.siteUrl}/admin/user-missing-accounts/${userId}`);
                 const data = await res.json();
 
                 data.missingTypes.forEach(type => {
@@ -160,7 +169,7 @@
 
 
             try {
-                const res = await fetch(`https://elitetrustbank-be.onrender.com/admin/update-user/${userId}?_method=PUT`, {
+                const res = await fetch(`${config.siteUrl}/admin/update-user/${userId}?_method=PUT`, {
                     method: "POST",
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)

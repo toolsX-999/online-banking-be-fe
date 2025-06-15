@@ -1,14 +1,106 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const Customer = require("../models/customer-model");
+const Admin = require("../models/admin-model");
 const Account = require("../models/accounts-model");
 const Transaction = require("../models/transaction-model");
+const isAuthenticatedAdmin = require("../middlewares/isAuthenticatedAdmin");
+const { upload } = require("../utils/cloudinary-config");
 const util = require("util");
 
 bcrypt.hash = util.promisify(bcrypt.hash);
 
 const router = express.Router();
+
+// Get admin login form
+router.get("/login", async (req, res) => {
+    res.set("Cache-Control", "no-store"); 
+    res.render("pages/admin/login");
+});
+
+// Login as admin
+router.post("/login", async (req, res) => {
+    console.log("Request received in /admin/login route");
+    const {email, password} = req.body;
+    if (!email || !password) {
+        console.log("Missing credentials");
+        return res.status(400).json({message: "Missing credentials"});
+    }
+    try {
+        const user = await Admin.findOne({email});
+        if (!user) {
+            console.log("User does not exist");
+            return res.status(404).json({message: "User does not exist"});
+        }
+        const passwordMatch = bcrypt.compareSync(password, user.passwordHash);
+        if (!passwordMatch) {
+            console.log("User does not exist");
+            return res.status(404).json({message: "Invalid credentials"});
+        }
+        user.lastLogin = Date.now();
+        await user.save();
+        jwt.sign({ userId: user._id }, process.env.JWTSECRET, { expiresIn: "1d" }, function(err, token) {
+            console.log("Token in admin backend = ", token);
+            res.cookie("token", token, {
+                maxAge: 24 * 60 * 60 * 1000,
+            });
+            // ✅ Send redirect path in response
+            // return res.status(200).json({ redirectTo: `/admin/dashboard?id=${user._id}` });
+            return res.status(200).json({ redirectTo: `/admin/dashboard` });
+            });        
+    } catch (error) {
+        console.log("Error occured logging in: ", error.message);
+        return res.status(500).json({messsage: "Error occured logging in"});
+    }
+});
+
+// Get register admin form for super Admin
+router.get("/register-admin", (req, res) => {
+    res.render("pages/admin/register-admin");
+})
+
+// Create/register admin for super Admin
+router.post("/register-admin", async (req, res) => {
+    console.log("Request received in register-admin route");
+    const { fullname, email, password, confirmPassword } = req.body;
+    if (!fullname || !email || !password)
+        return res.status(400).json({ status: "error", message: "Required fields missing" });
+    if (password !== confirmPassword)
+        return res.status(400).json({ status: "error", message: "Passwords does not match" });
+    try {
+        const userExists = await Admin.findOne({email});
+        if (userExists)
+            return res.status(401).json({ status: "error", message: "User already exists" });
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await Admin.create({
+            fullname,
+            email,
+            passwordHash: hashedPassword,
+        });
+        return res.status(201).json({ status: "success", message: "Created successfully" });
+    } catch (error) {
+        return res.status(500).json({ status: "error", message: "Internal server error" });
+    }
+});
+
+// Get admin dashboard
+router.get("/dashboard", isAuthenticatedAdmin, async (req, res) => {
+    console.log("Inside admin dashboard routes");
+    console.log("Admin Id in /admin/dashboard = ", req.user.userId);
+    try {
+        const users = await Customer.find({creatorId: req.user.userId});
+        console.log("Users found in /admin/dashboard route = ", users);
+        res.render("pages/admin/admin-dashboard", {
+            users
+        });
+    } catch (error) {
+        console.log("Error occured in /admin/dashboard route: ", error.message);
+        res.status(500).json({status: "error", message: "Internal server error"});
+    }
+
+});
 
 // Get create new user/customer form
 router.get("/register-user", (req, res) => {
@@ -16,13 +108,16 @@ router.get("/register-user", (req, res) => {
 });
 
 // Create a new user (customer)
-router.post("/register-user", async(req, res) => {
+router.post("/register-user", isAuthenticatedAdmin, async(req, res) => {
     console.log("Request recieved in /register-user route");
     const {
         fullname,
         email,
         password,
         confirmPassword,
+        phoneNumber,
+        passportNumber,
+        address,
         accountNumber,
         routingNumber,
         accountBalance,
@@ -33,7 +128,7 @@ router.post("/register-user", async(req, res) => {
         // console.log("Password and confirm password does not match");
         return res.status(400).json({message: "Passwords does not match"});
     }
-    if (!fullname || !email || !password || !accountNumber || !accountBalance || !routingNumber) {
+    if (!fullname || !email || !password || !address || !accountNumber || !accountBalance || !routingNumber || !phoneNumber || !passportNumber) {
         // console.log("Required fields missing");
         // console.log(req.body);
         return res.status(400).json({message: "Required fields missing"});
@@ -44,6 +139,10 @@ router.post("/register-user", async(req, res) => {
             fullName: fullname,
             email,
             passwordHash: hashedPassword,
+            phoneNumber,
+            passportNumber,
+            address,
+            creatorId: req.user.userId,
             createdAt: creationDate || Date.now(),
             accounts: [],
             otpSettings: {
@@ -85,8 +184,34 @@ router.post("/register-user", async(req, res) => {
     }
 })
 
+// Upload profile photo (customer)
+router.put('/upload-profile-photo', isAuthenticatedAdmin, upload.single('profileImage'), async (req, res) => {
+    const userId = req.body.user;
+    if (!userId) return res.status(400).json({ message: "No user selected" });
+    if (!req.file || !req.file.path) return res.status(400).json({ message: "No image uploaded" });
+    // console.log("userId in /upload-profile-photo route BE = ", userId);
+    // console.log("File in /upload-profile-photo route BE = ", req.file.path);    
+    // console.log("File in /upload-profile-photo route BE = ", req.file.filename);    
+
+    try {
+        // Update user profile with the uploaded image URL
+        await Customer.findByIdAndUpdate(userId, { imageUrl: req.file.path, imageId: req.file.filename });
+        console.log("User updated in DB and Cloudinary");
+        res.json({
+        message: 'Profile image updated successfully',
+        imageUrl: req.file.path,
+        imageId: req.file.filename,
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to upload image' });
+    }
+});
+
 // Get unused accounts for user (used internally)
 router.get("/user-missing-accounts/:userId", async (req, res) => {
+    console.log("In /user-missing-accounts/:userId route");
+    console.log("User id In /user-missing-accounts/:userId route = ", req.params.userId);
     if (!mongoose.isValidObjectId(req.params.userId)) {
         console.log("Invalid user id in req.params.userId");
         return res.status(404).json({ error: "Invalid user id" });
@@ -100,15 +225,17 @@ router.get("/user-missing-accounts/:userId", async (req, res) => {
   
       const existingTypes = user.accounts.map(acc => acc.accountType.toLowerCase());
       const missingTypes = allTypes.filter(type => !existingTypes.includes(type));
+      console.log("Missing accounts there is = ", missingTypes);
   
       return res.json({ missingTypes });
     } catch (err) {
       console.error(err);
       return res.status(500).json({ error: "Server error" });
     }
-  });
+});
 
-router.get("/update-user", async (req, res) => {
+// Update user account
+router.get("/update-user", isAuthenticatedAdmin, async (req, res) => {
     // console.log("User to update in update-user route id = ", req.params.id);
     let users;
     try {
@@ -132,7 +259,8 @@ router.get("/update-user", async (req, res) => {
 });
 
 // Add more accounts to user
-router.put("/update-user/:id", async (req, res) => {
+router.put("/update-user/:id", isAuthenticatedAdmin, async (req, res) => {
+    console.log("In /update-user/:id PUT route");
     console.log("User to update in update-user route id = ", req.params.id);
     if (!mongoose.isValidObjectId(req.params.id)) {
         console.log("Invalid user id in req.params.id");
@@ -180,7 +308,7 @@ router.put("/update-user/:id", async (req, res) => {
 });
 
 // Get set-otp page
-router.get("/set-otp", async(req, res) => {
+router.get("/set-otp", isAuthenticatedAdmin, async(req, res) => {
     try {
         const users = await Customer.find().select("-passwordHash");
         if (users) {
@@ -194,7 +322,7 @@ router.get("/set-otp", async(req, res) => {
 });
 
 // Set OTP
-router.put('/set-otp', async (req, res) => {
+router.put('/set-otp', isAuthenticatedAdmin, async (req, res) => {
     try {
       const {
         user, // customerId
@@ -251,7 +379,6 @@ router.put('/set-otp', async (req, res) => {
     }
 });
   
-
 // Validate checkpoint
 router.get('/checkpoint', async (req, res) => {
     const { transactionId, percent, type } = req.query;
@@ -296,6 +423,37 @@ router.post('/verify', async (req, res) => {
     }
   
     res.json({ success: true });
-  });
-  
+});
+
+// Admin dashoard
+// router.get("/dashboard", async (req, res) => {
+//   return res.render("pages/admin/admin-dashboard");
+// })
+
+// Delete user
+router.delete("/delete/user/:userId", isAuthenticatedAdmin, async (req, res) => {
+    const userId = req.params.userId;
+    console.log("Request received in /account/history/delete:itemId route");
+
+    try {
+        await Customer.findByIdAndDelete(userId);
+        console.log("Deleted successfully");
+        return res.status(200).json({status: "Success", message: "Deleted successfully"});
+    } catch (error) {
+        console.log("Error occured deleting customer");
+        return res.status(500).json({status: "Error", message: "Error occured deleting customer"});
+    }
+});
+
+// Logout admin route
+router.get("/logout", (req, res) => {
+    console.log("Inside /logout route");
+    res.clearCookie('token', { path: '/' });
+    // Redirect to the login page
+    setTimeout(() => {
+        return res.redirect('/admin/login');
+    }, 2000)
+});
+
+
 module.exports = router;

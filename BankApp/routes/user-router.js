@@ -18,6 +18,7 @@ router.get("/keepup", (req, res) => {
     return res.status(200).json("Server is up")
 })
 
+// Get login page
 router.get("/login", async (req, res) => {
     // This makes sure the form loggin in
     // does not show when back in the browser is clicked
@@ -25,7 +26,8 @@ router.get("/login", async (req, res) => {
     res.render("pages/user/login")
 });
 
-router.post("/login", async(req, res, next) => {
+// Login user
+router.post("/login", async(req, res) => {
     const {email, password} = req.body;
     if (!email || !password) {
         console.log("Missing credentials");
@@ -42,6 +44,8 @@ router.post("/login", async(req, res, next) => {
             console.log("User does not exist");
             return res.status(404).json({message: "Invalid credentials"});
         }
+        user.lastLogin = Date.now();
+        await user.save();
         jwt.sign({ userId: user._id }, process.env.JWTSECRET, { expiresIn: "1d" }, function(err, token) {
             console.log("Token in backend = ", token);
             res.cookie("token", token, {
@@ -58,11 +62,8 @@ router.post("/login", async(req, res, next) => {
     }
 });
 
+// User dashboard view
 router.get("/account", isAuthenticated, async (req, res) => {
-    console.log("In /user/account route ");
-    console.log("User is auAthenticated");
-    console.log(`id in /user/account query param = ${req.query.id}`);
-    console.log("Received userId in decoded in /user/account = ", req.user.userId);
     try {
         const user = await customer.findById(req.user.userId).select("-passwordHash").populate("accounts");
         if (!user)
@@ -86,7 +87,49 @@ router.get("/account", isAuthenticated, async (req, res) => {
     }
   });
 
-// Logout route
+// Update a user profile including password
+router.put("/account/profile-update", isAuthenticated, async (req, res) => {
+    console.log("In /account/profile-update route");
+    
+    const { editFullName, editPhoneNumber, editAddress, editPassword } = req.body;
+    if (!editFullName || !editPhoneNumber || !editAddress)
+        return res.status(200).json({status: "Warning", message: "Some fields are empty"});
+    try {
+        let hashedPassword;
+        if (editPassword) {
+            hashedPassword = bcrypt.hashSync(editPassword, 10);
+            console.log("HashedPassword: ", hashedPassword);
+        }
+    
+        const user = await customer.findByIdAndUpdate(req.user.userId, {
+            fullName: editFullName && editFullName,
+            address: editAddress,
+            phoneNumber: editPhoneNumber && editPhoneNumber,
+            passwordHash: hashedPassword && hashedPassword
+        });
+        return res.status(201).json({status: "Success", message: "Updated successfully"});
+    } catch (error) {
+        console.log("Error occured updating user: ", error.messsage);
+        return res.status(500).json({status: "Error", message: "Error updating user"});
+    }
+});
+
+// Delete a transaction from transaction history table
+router.delete("/account/history/delete/:itemId", isAuthenticated, async (req, res) => {
+    const transactionId = req.params.itemId;
+    console.log("Request received in /account/history/delete:itemId route");
+
+    try {
+        await Transaction.findByIdAndDelete(transactionId);
+        console.log("Deleted successfully");
+        return res.status(200).json({status: "Success", message: "Deleted successfully"});
+    } catch (error) {
+        console.log("Error occured deleting item");
+        return res.status(500).json({status: "Error", message: "Error occured deleting item"});
+    }
+});
+
+// Logout user route
 router.get("/logout", (req, res) => {
     console.log("Inside /logout route");
     res.clearCookie('token', { path: '/' });

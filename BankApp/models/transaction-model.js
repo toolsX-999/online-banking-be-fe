@@ -10,6 +10,7 @@ const transactionSchema = new mongoose.Schema({
   toBank: String,
   remarks: String,
   amount: Number,
+  currentOtpIndex: { type: Number, default: 0 },
   transactionType: { type: String, enum: ['transfer', 'withdrawal', 'deposit'], required: true },
   transferType: String,
   status: { type: String, enum: ['pending', 'completed'], default: 'pending' },

@@ -1,18 +1,19 @@
 require("dotenv").config();
 const express = require("express");
-const path = require("path");
-const cors = require("cors");
 const cookieParser = require("cookie-parser");
-const methodOveride = require("method-override");
+const cors = require("cors");
 const connectMongo = require("./utils/connect-mongoDB");
-const sitenavRouter = require("./routes/sitenav-router");
-const userRouter = require("./routes/user-router");
+const methodOveride = require("method-override");
+const path = require("path");
 const adminRouter = require("./routes/admin-router");
-const transferRoutes = require('./routes/transfer-router');
+const sitenavRouter = require("./routes/sitenav-router");
+const transferRouter = require('./routes/transfer-router');
+const userRouter = require("./routes/user-router");
 
 const app = express();
 
-const port = 3002;
+const port = parseInt(process.env.PORT, 10) || 3002;
+
 connectMongo();
 
 app.use(cors({
@@ -22,20 +23,31 @@ app.use(cors({
 app.use(methodOveride("_method"));
 app.use(cookieParser());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true })); 
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use((req, res, next) => {
+    res.locals.config = {
+        siteUrl: process.env.SITEURL,
+        phoneNumber: process.env.PHONENUMBER,
+        contactEmail: process.env.CONTACTEMAIL,
+        customerCareEmail: process.env.CUSTOMERCAREEMAIL,
+        customerServicePhoneNumber: process.env.CUSTOMERSERVICEPHONENUMBER
+    }
+    next();
+});
+
 app.use("/", sitenavRouter);
 app.use("/user", userRouter);
+app.use('/transfer', transferRouter);
 app.use("/admin", adminRouter);
-app.use('/transfer', transferRoutes);
 
-// Default catchall route
-app.all('/{*any}', (req, res, next) => {
-    return res.status(404).render('pages/404', { url: req.originalUrl });;
+// Update here to avoid errors in line 73 node_modules/path-regex..../index.js
+app.get("/{*any}", (req, res) => {
+    return res.status(404).send("404 Invalid route");
 })
 
 app.listen(port, (req, res) => {
