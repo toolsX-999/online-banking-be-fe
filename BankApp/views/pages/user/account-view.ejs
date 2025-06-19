@@ -947,7 +947,7 @@
                         <div class="col-md-4 mb-5 h-100 p-3">
                             <div class="row">
                                 <div class="col-12 text-center p-3 border rounded shadow-sm">
-                                    <img src="<%= user.imageUrl %>" class="rounded-circle mb-3" alt="Profile Picture" style="width: 120px; height: 120px; object-fit: cover; border: 3px solid #0d6efd;">
+                                    <img src="<%= user.imageUrl? user.imageUrl : /images/avatar1.png %>" class="rounded-circle mb-3" alt="Profile Picture" style="width: 120px; height: 120px; object-fit: cover; border: 3px solid #0d6efd;">
                                     <!-- <img src="/images/profile1.jpg" class="rounded-circle mb-3" alt="Profile Picture" style="width: 120px; height: 120px; object-fit: cover; border: 3px solid #0d6efd;"> -->
                                     
                                     <h5 class="mb-1"><%= user.fullName %></h5>
